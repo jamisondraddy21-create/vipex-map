@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claim Your Zip — Vipex AI</title>
+<meta name="description" content="One realtor per zip. Exclusive seller-intent data for Long Island & NYC. Check if your zip is still open.">
+<meta property="og:title" content="Is your zip still open?">
+<meta property="og:description" content="One realtor per zip. Exclusive seller-intent intelligence by Vipex AI. Check yours before someone else claims it.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Cinzel:wght@600&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050505;
+    --green: #39FF14;
+    --white: #FFFFFF;
+    --gray: #8a8a8a;
+    --dark2: #0d0d0d;
+    --border: #1c1c1c;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Montserrat', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .wrap { width: 100%; max-width: 560px; padding: 0 20px; }
+
+  nav {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 28px 0 8px;
+  }
+  .logo {
+    border: 1px solid var(--green);
+    padding: 10px 22px;
+    text-align: center;
+    border-radius: 2px;
+  }
+  .logo .v { font-family: 'Cinzel', serif; font-weight: 600; font-size: 20px; letter-spacing: 0.25em; color: var(--white); display: block; }
+  .logo .ai { font-family: 'Cinzel', serif; font-weight: 600; font-size: 11px; letter-spacing: 0.5em; color: var(--green); display: block; margin-top: 2px; }
+
+  .hero { text-align: center; padding: 36px 0 8px; }
+  .hero h1 {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(44px, 11vw, 72px);
+    line-height: 1.02;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+  }
+  .hero h1 .g { color: var(--green); }
+  .hero p.sub {
+    color: var(--gray);
+    font-size: 14px;
+    margin-top: 14px;
+    line-height: 1.6;
+  }
+  .counter {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 18px;
+    border: 1px solid var(--border);
+    background: var(--dark2);
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--white);
+  }
+  .counter .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  .search { padding: 26px 0 6px; }
+  .searchbox {
+    display: flex;
+    border: 1px solid var(--border);
+    background: var(--dark2);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .searchbox:focus-within { border-color: var(--green); }
+  .searchbox input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--white);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 18px 18px;
+    letter-spacing: 0.15em;
+  }
+  .searchbox input::placeholder { color: #555; font-weight: 400; letter-spacing: 0.05em; }
+  .searchbox button {
+    background: var(--green);
+    color: #050505;
+    border: none;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.05em;
+    padding: 0 26px;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+  .searchbox button:active { opacity: 0.8; }
+
+  .result {
+    margin-top: 18px;
+    border-radius: 10px;
+    padding: 26px 22px;
+    text-align: center;
+    display: none;
+  }
+  .result.show { display: block; animation: rise .25s ease; }
+  @keyframes rise { from { transform: translateY(6px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .result.claimed { background: #120a0a; border: 1px solid #3a1414; }
+  .result.open { background: #0a120a; border: 1px solid var(--green); box-shadow: 0 0 40px rgba(57,255,20,0.12); }
+  .result.unknown { background: var(--dark2); border: 1px solid var(--border); }
+  .result h2 {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(28px, 7vw, 40px);
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+  .result.claimed h2 { color: #ff5c5c; }
+  .result.open h2 { color: var(--green); }
+  .result p { color: var(--gray); font-size: 14px; margin-top: 10px; line-height: 1.6; }
+  .cta {
+    display: inline-block;
+    margin-top: 18px;
+    background: var(--green);
+    color: #050505;
+    font-weight: 700;
+    font-size: 15px;
+    text-decoration: none;
+    padding: 15px 34px;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .cta.ghost {
+    background: transparent;
+    color: var(--white);
+    border: 1px solid var(--border);
+  }
+
+  .mapbox { padding: 34px 0 10px; text-align: center; }
+  .mapbox h3 {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 14px;
+  }
+  .mapfig {
+    border: 1px solid var(--border);
+    background: var(--dark2);
+    border-radius: 12px;
+    padding: 18px 10px 8px;
+  }
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+    padding: 12px 0 10px;
+    font-size: 11px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .sw.g { background: var(--green); box-shadow: 0 0 8px rgba(57,255,20,0.8); }
+  .sw.k { background: #222; border: 1px solid #3a3a3a; }
+
+  .how { padding: 30px 0; text-align: center; }
+  .how p { color: var(--gray); font-size: 14px; line-height: 1.8; }
+  .how strong { color: var(--white); }
+  .how .g { color: var(--green); font-weight: 700; }
+
+  footer {
+    width: 100%;
+    text-align: center;
+    padding: 26px 0 40px;
+    border-top: 1px solid var(--border);
+    margin-top: 20px;
+  }
+  footer a { color: var(--gray); font-size: 12px; text-decoration: none; letter-spacing: 0.1em; text-transform: uppercase; }
+  footer a:hover { color: var(--green); }
+
+  .zipdot { animation: pulse 2s ease-in-out infinite; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <span class="v">VIPEX</span>
+    <span class="ai">AI</span>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <section class="hero">
+    <h1>Is your zip<br><span class="g">still open?</span></h1>
+    <p class="sub">One realtor per zip. Exclusive seller-intent data.<br>Once it's claimed, it's locked.</p>
+    <div class="counter"><span class="dot"></span><span id="counterText">6 territories claimed</span></div>
+  </section>
+
+  <section class="search">
+    <div class="searchbox">
+      <input id="zipInput" type="text" inputmode="numeric" maxlength="5" placeholder="Enter your zip code" aria-label="Enter your zip code">
+      <button onclick="checkZip()">Check</button>
+    </div>
+
+    <div id="result" class="result" role="status"></div>
+  </section>
+
+  <section class="mapbox">
+    <h3>The Territory Map</h3>
+    <div class="mapfig">
+      <svg viewBox="0 0 520 200" width="100%" role="img" aria-label="Stylized map of Long Island and NYC showing claimed territories in green">
+        <path d="M20 120 C 30 100, 55 92, 75 96 C 90 84, 108 86, 118 94 C 150 78, 200 70, 250 72 C 310 66, 370 58, 420 44 C 450 36, 480 28, 505 22 C 508 30, 495 40, 470 50 C 490 52, 505 48, 515 52 C 505 62, 480 68, 455 70 C 420 84, 380 94, 340 100 C 290 110, 240 116, 195 122 C 160 128, 130 134, 105 138 C 80 142, 50 140, 32 132 C 24 128, 18 124, 20 120 Z"
+          fill="#0f0f0f" stroke="#2a2a2a" stroke-width="1.5"/>
+        <circle class="zipdot" cx="52" cy="118" r="7" fill="#39FF14" opacity="0.95"/>
+        <circle class="zipdot" cx="66" cy="108" r="7" fill="#39FF14" opacity="0.95" style="animation-delay:.3s"/>
+        <circle class="zipdot" cx="168" cy="112" r="7" fill="#39FF14" opacity="0.95" style="animation-delay:.6s"/>
+        <circle class="zipdot" cx="196" cy="108" r="7" fill="#39FF14" opacity="0.95" style="animation-delay:.9s"/>
+        <circle class="zipdot" cx="252" cy="92" r="7" fill="#39FF14" opacity="0.95" style="animation-delay:1.2s"/>
+        <circle class="zipdot" cx="300" cy="92" r="7" fill="#39FF14" opacity="0.95" style="animation-delay:1.5s"/>
+      </svg>
+      <div class="legend">
+        <span><span class="sw g"></span> Claimed</span>
+        <span><span class="sw k"></span> Still open</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="how">
+    <p><strong>How it works:</strong> Vipex tracks pre-foreclosures, probates, tax liens and more — public-record seller signals, pulled daily for <span class="g">one realtor per zip.</span> Your territory. Your leads. Nobody else's.</p>
+  </section>
+
+</div>
+
+<footer>
+  <a href="https://vipexai.com">VIPEXAI.COM</a>
+</footer>
+
+<script>
+  var CLAIMED = ["11713","11717","11758","11566","11221","11238"];
+  var DM_LINK = "https://ig.me/m/vipexai";
+
+  document.getElementById('counterText').textContent = CLAIMED.length + " territories claimed";
+
+  document.getElementById('zipInput').addEventListener('keydown', function(e){
+    if (e.key === 'Enter') checkZip();
+  });
+
+  function checkZip() {
+    var zip = document.getElementById('zipInput').value.trim();
+    var box = document.getElementById('result');
+    if (!/^\d{5}$/.test(zip)) {
+      box.className = 'result unknown show';
+      box.innerHTML = '<h2>Enter a 5-digit zip</h2><p>Type your zip code and hit check.</p>';
+      return;
+    }
+    if (CLAIMED.indexOf(zip) !== -1) {
+      box.className = 'result claimed show';
+      box.innerHTML = '<h2>' + zip + ' is claimed 🔒</h2>' +
+        '<p>Another realtor owns this territory. Every seller signal in ' + zip + ' goes to them first.</p>' +
+        '<p>Adjacent zips may still be open — move before they go too.</p>' +
+        '<a class="cta ghost" href="' + DM_LINK + '">Ask about nearby zips</a>';
+    } else if (/^11\d{3}$/.test(zip)) {
+      box.className = 'result open show';
+      box.innerHTML = '<h2>' + zip + ' is still open</h2>' +
+        '<p>One realtor gets this zip. Every pre-foreclosure, probate and tax lien signal — exclusively. Then it locks.</p>' +
+        '<a class="cta" href="' + DM_LINK + '">Claim ' + zip + ' →</a>';
+    } else {
+      box.className = 'result unknown show';
+      box.innerHTML = '<h2>Not in our coverage yet</h2>' +
+        '<p>We\'re live across Long Island and NYC. Expanding soon — get in early.</p>' +
+        '<a class="cta ghost" href="' + DM_LINK + '">DM us</a>';
+    }
+  }
+</script>
+
+</body>
+</html>
