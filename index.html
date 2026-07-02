@@ -32,7 +32,8 @@
     flex-direction: column;
     align-items: center;
   }
-  .wrap { width: 100%; max-width: 640px; padding: 0 20px; }
+  .wrap { width: 100%; max-width: 760px; padding: 0 20px; }
+  .wrap-wide { width: 100%; max-width: 1100px; padding: 0 20px; }
 
   nav { width: 100%; display: flex; justify-content: center; padding: 28px 0 8px; }
   .logo { border: 1px solid var(--green); padding: 10px 22px; text-align: center; border-radius: 2px; }
@@ -114,7 +115,8 @@
   }
   #map {
     width: 100%;
-    height: 440px;
+    height: 72vh;
+    min-height: 460px;
     border-radius: 12px;
     border: 1px solid var(--border);
     background: #0a0a0a;
@@ -178,6 +180,9 @@
     <div id="result" class="result" role="status"></div>
   </section>
 
+</div>
+
+<div class="wrap-wide">
   <section class="mapbox">
     <h3>The Territory Map</h3>
     <div id="map"></div>
@@ -187,11 +192,12 @@
       <span><span class="sw k"></span> Still open</span>
     </div>
   </section>
+</div>
 
+<div class="wrap">
   <section class="how">
     <p><strong>How it works:</strong> Vipex tracks pre-foreclosures, probates, tax liens and more — public-record seller signals, pulled daily for <span class="g">one realtor per zip.</span> Your territory. Your leads. Nobody else's.</p>
   </section>
-
 </div>
 
 <footer>
