@@ -104,8 +104,37 @@
     font-weight: 700; font-size: 15px; text-decoration: none;
     padding: 15px 34px; border-radius: 8px;
     text-transform: uppercase; letter-spacing: 0.04em;
+    border: none; cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
   }
   .cta.ghost { background: transparent; color: var(--white); border: 1px solid var(--border); }
+  .cta:disabled { opacity: 0.5; cursor: wait; }
+
+  .claimform { margin-top: 20px; display: none; text-align: left; }
+  .claimform.show { display: block; animation: rise .25s ease; }
+  .claimform label {
+    display: block; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.15em;
+    color: var(--gray); margin: 14px 0 6px;
+  }
+  .claimform input {
+    width: 100%;
+    background: #050505;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--white);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 16px; font-weight: 600;
+    padding: 14px 16px;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .claimform input:focus { border-color: var(--green); }
+  .claimform .cta { width: 100%; text-align: center; margin-top: 20px; }
+  .formnote { font-size: 11px; color: #555; text-align: center; margin-top: 10px; }
+  .success { text-align: center; padding: 10px 0; }
+  .success .big { font-family: 'Anton', sans-serif; font-size: 30px; color: var(--green); text-transform: uppercase; }
+  .success p { color: var(--gray); font-size: 14px; margin-top: 8px; line-height: 1.6; }
 
   .mapbox { padding: 34px 0 10px; }
   .mapbox h3 {
@@ -207,7 +236,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
   var CLAIMED = ["11713","11717","11758","11566","11221","11238"];
-  var DM_LINK = "https://ig.me/m/vipexai";
+  var W3F_KEY = "94c7a8ab-bc06-4504-9aeb-f2648e1e23cc";
   var zipLayers = {};
 
   document.getElementById('counterText').textContent = CLAIMED.length + " territories claimed";
@@ -293,18 +322,85 @@
       box.innerHTML = '<h2>' + zip + ' is claimed 🔒</h2>' +
         '<p>Another realtor owns this territory. Every seller signal in ' + zip + ' goes to them first.</p>' +
         '<p>Adjacent zips may still be open — move before they go too.</p>' +
-        '<a class="cta ghost" href="' + DM_LINK + '">Ask about nearby zips</a>';
+        '<button class="cta ghost" onclick="openForm(\'' + zip + '\', \'nearby\')">Ask about nearby zips</button>' +
+        formHtml(zip, 'nearby');
     } else if (/^11\d{3}$/.test(zip)) {
       box.className = 'result open show';
       box.innerHTML = '<h2>' + zip + ' is still open</h2>' +
         '<p>One realtor gets this zip. Every pre-foreclosure, probate and tax lien signal — exclusively. Then it locks.</p>' +
-        '<a class="cta" href="' + DM_LINK + '">Claim ' + zip + ' →</a>';
+        '<button class="cta" onclick="openForm(\'' + zip + '\', \'claim\')">Claim ' + zip + ' →</button>' +
+        formHtml(zip, 'claim');
     } else {
       box.className = 'result unknown show';
       box.innerHTML = '<h2>Not in our coverage yet</h2>' +
         '<p>We\'re live across Long Island and NYC. Expanding soon — get in early.</p>' +
-        '<a class="cta ghost" href="' + DM_LINK + '">DM us</a>';
+        '<button class="cta ghost" onclick="openForm(\'' + zip + '\', \'waitlist\')">Get in early</button>' +
+        formHtml(zip, 'waitlist');
     }
+  }
+
+  function formHtml(zip, mode) {
+    var btnText = mode === 'claim' ? 'Lock in ' + zip : (mode === 'nearby' ? 'Send' : 'Join the list');
+    return '<div class="claimform" id="claimform">' +
+      '<label>Full name</label><input type="text" id="f_name" autocomplete="name" placeholder="Your name">' +
+      '<label>Phone</label><input type="tel" id="f_phone" autocomplete="tel" inputmode="tel" placeholder="(631) 555-0123">' +
+      '<label>Email</label><input type="email" id="f_email" autocomplete="email" placeholder="you@email.com">' +
+      '<button class="cta" id="f_submit" onclick="submitClaim(\'' + zip + '\', \'' + mode + '\')">' + btnText + '</button>' +
+      '<p class="formnote">No spam. A real person reaches out — fast.</p>' +
+      '</div>';
+  }
+
+  function openForm(zip, mode) {
+    var f = document.getElementById('claimform');
+    if (f) {
+      f.classList.add('show');
+      var n = document.getElementById('f_name');
+      if (n) n.focus();
+    }
+  }
+
+  function submitClaim(zip, mode) {
+    var name = document.getElementById('f_name').value.trim();
+    var phone = document.getElementById('f_phone').value.trim();
+    var email = document.getElementById('f_email').value.trim();
+    var btn = document.getElementById('f_submit');
+    if (!name || !phone) { alert('Name and phone — that\'s all we need.'); return; }
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    var subjects = {
+      claim: '🔥 ZIP CLAIM: ' + zip,
+      nearby: 'Nearby-zip inquiry (' + zip + ' taken)',
+      waitlist: 'Coverage waitlist: ' + zip
+    };
+    fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        access_key: W3F_KEY,
+        subject: subjects[mode],
+        from_name: 'ClaimYourZip.com',
+        zip: zip,
+        name: name,
+        phone: phone,
+        email: email || 'not provided',
+        request_type: mode
+      })
+    }).then(function(r){ return r.json(); }).then(function(res){
+      var box = document.getElementById('result');
+      if (res.success) {
+        box.className = 'result open show';
+        box.innerHTML = '<div class="success"><div class="big">You\'re in.</div>' +
+          '<p>' + (mode === 'claim'
+            ? zip + ' is on hold under your name. A real person is calling you shortly — keep your phone on.'
+            : 'Got it. We\'ll reach out fast with what\'s open near you.') + '</p></div>';
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Try again';
+      }
+    }).catch(function(){
+      btn.disabled = false;
+      btn.textContent = 'Try again';
+    });
   }
 </script>
 
